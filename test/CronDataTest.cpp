@@ -184,6 +184,21 @@ SCENARIO("Literal input")
                 REQUIRE_FALSE(CronData::has_any_in_range(c.get_day_of_week(), 4, 5)); // Does not have thu or fri.
             }
         }
+        AND_WHEN("Using weekday indexes")
+        {
+            THEN("Index is valid")
+            {
+                auto c = CronData::create("* * * ? * MON#2");
+                REQUIRE(c.is_valid());
+                REQUIRE(has_value_range(c.get_index_of_day(), 2, 2));
+            }
+            THEN("Index is valid")
+            {
+                auto c = CronData::create("* * * ? * MON");
+                REQUIRE(c.is_valid());
+                REQUIRE(has_value_range(c.get_index_of_day(), 1, 5));
+            }
+        }
     }
 }
 

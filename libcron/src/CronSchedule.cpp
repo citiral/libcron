@@ -54,6 +54,16 @@ namespace libcron
                     curr += days{1};
                     date_changed = true;
                 }
+
+                // Add weeks until the current index is one of the allowed indexes
+                if (data.get_index_of_day().find(static_cast<NthOfDay>(ymw.weekday_indexed().index())) ==
+                    data.get_index_of_day().end())
+                {
+                    sys_days s = ymd;
+                    curr = s;
+                    curr += days{ 7 };
+                    date_changed = true;
+                }
             }
 
             if (!date_changed)

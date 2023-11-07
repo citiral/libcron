@@ -56,6 +56,11 @@ namespace libcron
                 return day_of_week;
             }
 
+            const std::set<NthOfDay>& get_index_of_day() const
+            {
+                return index_of_day;
+            }
+
             template<typename T>
             static uint8_t value_of(T t)
             {
@@ -93,6 +98,10 @@ namespace libcron
                                   const std::vector<std::string>& names);
 
             template<typename T>
+            bool validate_index(const std::string& s,
+                                  std::set<T>& numbers);
+
+            template<typename T>
             bool process_parts(const std::vector<std::string>& parts, std::set<T>& numbers);
 
             template<typename T>
@@ -123,6 +132,7 @@ namespace libcron
             std::set<DayOfMonth> day_of_month{};
             std::set<Months> months{};
             std::set<DayOfWeek> day_of_week{};
+            std::set<NthOfDay> index_of_day{};
             bool valid = false;
 
             static const std::vector<std::string> month_names;
@@ -168,6 +178,32 @@ namespace libcron
         }
 
         return process_parts(parts, numbers);
+    }
+
+    template<typename T>
+    bool CronData::validate_index(const std::string& s,
+                                  std::set<T>& numbers)
+    {
+        std::vector<std::string> parts = split(s, '#');
+
+        auto value_of_first_name = value_of(T::First);
+        auto value_of_last_name = value_of(T::Last);
+
+        if (parts.size() == 1) {
+            for (auto value = value_of_first_name; value <= value_of_last_name; value++) {
+                if (!add_number(numbers, value))
+                    return false;
+            }
+        }
+        else {
+            if (!is_number(parts[1]))
+                return false;
+
+            if (!add_number(numbers, std::stoi(parts[1])))
+                return false;
+        }
+
+        return true;
     }
 
     template<typename T>
@@ -297,6 +333,11 @@ namespace libcron
         uint8_t step;
 
         bool res = true;
+
+        auto hash = range.find_first_of('#');
+        if (hash != std::string::npos) {
+            return convert_from_string_range_to_number_range(range.substr(0, hash), numbers);
+        }
 
         if (range == "*" || range == "?")
         {
