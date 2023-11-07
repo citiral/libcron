@@ -56,7 +56,7 @@ namespace libcron
                 }
 
                 // Add weeks until the current index is one of the allowed indexes
-                if (data.get_index_of_day().find(static_cast<NthOfDay>(ymw.weekday_indexed().index())) ==
+                if (data.get_index_of_day().find(static_cast<IndexOfDay>(ymw.weekday_indexed().index())) ==
                     data.get_index_of_day().end())
                 {
                     sys_days s = ymd;

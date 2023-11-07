@@ -56,7 +56,7 @@ namespace libcron
                 return day_of_week;
             }
 
-            const std::set<NthOfDay>& get_index_of_day() const
+            const std::set<IndexOfDay>& get_index_of_day() const
             {
                 return index_of_day;
             }
@@ -132,7 +132,7 @@ namespace libcron
             std::set<DayOfMonth> day_of_month{};
             std::set<Months> months{};
             std::set<DayOfWeek> day_of_week{};
-            std::set<NthOfDay> index_of_day{};
+            std::set<IndexOfDay> index_of_day{};
             bool valid = false;
 
             static const std::vector<std::string> month_names;

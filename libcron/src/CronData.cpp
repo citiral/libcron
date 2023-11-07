@@ -60,7 +60,7 @@ namespace libcron
             valid &= validate_numeric<DayOfMonth>(match[4], day_of_month);
             valid &= validate_literal<Months>(match[5], months, month_names);
             valid &= validate_literal<DayOfWeek>(match[6], day_of_week, day_names);
-            valid &= validate_index<NthOfDay>(match[6], index_of_day);
+            valid &= validate_index<IndexOfDay>(match[6], index_of_day);
             valid &= check_dom_vs_dow(match[4], match[6]);
             valid &= validate_date_vs_months();
         }

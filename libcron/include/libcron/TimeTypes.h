@@ -53,7 +53,7 @@ namespace libcron
         Last = 6,
     };
 
-    enum class NthOfDay : uint8_t
+    enum class IndexOfDay : uint8_t
     {
         First = 1,
         Last = 5,
