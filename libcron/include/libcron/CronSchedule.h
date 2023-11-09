@@ -36,13 +36,13 @@ namespace libcron
                 auto time_of_day = date::make_time(time - daypoint); // Yields time_of_day type
 
                 // Obtain individual components as integers
-                DateTime dt{
-                        int(ymd.year()),
-                        unsigned(ymd.month()),
-                        unsigned(ymd.day()),
-                        static_cast<uint8_t>(time_of_day.hours().count()),
-                        static_cast<uint8_t>(time_of_day.minutes().count()),
-                        static_cast<uint8_t>(time_of_day.seconds().count())};
+                DateTime dt;
+                dt.year = int(ymd.year());
+                dt.month = unsigned(ymd.month());
+                dt.day = unsigned(ymd.day());
+                dt.hour = static_cast<uint8_t>(time_of_day.hours().count());
+                dt.min = static_cast<uint8_t>(time_of_day.minutes().count());
+                dt.sec = static_cast<uint8_t>(time_of_day.seconds().count());
 
                 return dt;
             }
