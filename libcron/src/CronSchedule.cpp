@@ -6,7 +6,6 @@ using namespace date;
 
 namespace libcron
 {
-
     std::tuple<bool, std::chrono::system_clock::time_point>
     CronSchedule::calculate_from(const std::chrono::system_clock::time_point& from) const
     {
@@ -54,15 +53,39 @@ namespace libcron
                     curr += days{1};
                     date_changed = true;
                 }
+                else {
+                    // Add weeks until the current index is one of the allowed indexes
+                    if (!data.is_index_of_day_reversed())
+                    {
+                        if (data.get_index_of_day().find(static_cast<IndexOfDay>(ymw.weekday_indexed().index())) ==
+                            data.get_index_of_day().end())
+                        {
+                            sys_days s = ymd;
+                            curr = s;
+                            curr += days{ 7 };
+                            date_changed = true;
+                        }
+                    }
+                    else {
+                        sys_days s = ymw;
+                        bool ok = false;
 
-                // Add weeks until the current index is one of the allowed indexes
-                if (data.get_index_of_day().find(static_cast<IndexOfDay>(ymw.weekday_indexed().index())) ==
-                    data.get_index_of_day().end())
-                {
-                    sys_days s = ymd;
-                    curr = s;
-                    curr += days{ 7 };
-                    date_changed = true;
+                        for each (auto& index in data.get_index_of_day()) {
+                            year_month_weekday_last ymwl(ymw.year(), ymw.month(), weekday_last(ymw.weekday()));
+                            sys_days ymwl_days = ymwl;
+                            ymwl_days -= weeks((((uint8_t) index) - 1));
+                            if (s == (sys_days)ymwl_days) {
+                                ok = true;
+                                break;
+                            }
+                        }
+
+                        if (!ok) {
+                            curr = s;
+                            curr += days{ 7 };
+                            date_changed = true;
+                        }
+                    }
                 }
             }
 

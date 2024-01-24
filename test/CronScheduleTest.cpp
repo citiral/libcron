@@ -211,5 +211,27 @@ SCENARIO("Examples from README.md")
 
 SCENARIO("Unable to calculate time point")
 {
-    REQUIRE_FALSE(test( "0 0 * 31 FEB *", DT(2021_y / 1 / 1), DT(2022_y / 1 / 1)));
+    REQUIRE_FALSE(test("0 0 * 31 FEB *", DT(2021_y / 1 / 1), DT(2022_y / 1 / 1)));
+}
+
+SCENARIO("Calculating relative start times")
+{
+    REQUIRE(test("0 0 0 ? JAN 1#2", DT(2024_y / 1 / 1, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2024_y / 1 / 8),
+                DT(2025_y / 1 / 13),
+                DT(2026_y / 1 / 12),
+        }));
+
+    REQUIRE(test("0 0 0 ? JAN 1L", DT(2024_y / 1 / 1, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2024_y / 1 / 29),
+                DT(2025_y / 1 / 27),
+        }));
+
+    REQUIRE(test("0 0 0 ? FEB 2L-3", DT(2024_y / 1 / 1, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2024_y / 2 / 13),
+                DT(2025_y / 2 / 11),
+        }));
 }

@@ -191,12 +191,31 @@ SCENARIO("Literal input")
                 auto c = CronData::create("* * * ? * MON#2");
                 REQUIRE(c.is_valid());
                 REQUIRE(has_value_range(c.get_index_of_day(), 2, 2));
+                REQUIRE(!c.is_index_of_day_reversed());
             }
             THEN("Index is valid")
             {
                 auto c = CronData::create("* * * ? * MON");
                 REQUIRE(c.is_valid());
                 REQUIRE(has_value_range(c.get_index_of_day(), 1, 5));
+                REQUIRE(!c.is_index_of_day_reversed());
+            }
+        }
+        AND_WHEN("Using last modifier")
+        {
+            THEN("1")
+            {
+                auto c = CronData::create("* * * ? * 1L");
+                REQUIRE(c.is_valid());
+                REQUIRE(has_value_range(c.get_index_of_day(), 1, 1));
+                REQUIRE(c.is_index_of_day_reversed());
+            }
+            THEN("Index is valid")
+            {
+                auto c = CronData::create("* * * ? * MONL-3");
+                REQUIRE(c.is_valid());
+                REQUIRE(has_value_range(c.get_index_of_day(), 3, 3));
+                REQUIRE(c.is_index_of_day_reversed());
             }
         }
     }

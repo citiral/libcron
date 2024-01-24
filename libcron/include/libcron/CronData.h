@@ -61,6 +61,10 @@ namespace libcron
                 return index_of_day;
             }
 
+            bool is_index_of_day_reversed() const {
+                return index_of_day_is_reversed;
+            }
+
             template<typename T>
             static uint8_t value_of(T t)
             {
@@ -99,7 +103,8 @@ namespace libcron
 
             template<typename T>
             bool validate_index(const std::string& s,
-                                  std::set<T>& numbers);
+                                  std::set<T>& numbers,
+                                  bool& indexIsReversed);
 
             template<typename T>
             bool process_parts(const std::vector<std::string>& parts, std::set<T>& numbers);
@@ -133,6 +138,7 @@ namespace libcron
             std::set<Months> months{};
             std::set<DayOfWeek> day_of_week{};
             std::set<IndexOfDay> index_of_day{};
+            bool index_of_day_is_reversed = false;
             bool valid = false;
 
             static const std::vector<std::string> month_names;
@@ -182,25 +188,48 @@ namespace libcron
 
     template<typename T>
     bool CronData::validate_index(const std::string& s,
-                                  std::set<T>& numbers)
+                                  std::set<T>& numbers,
+                                  bool& indexIsReversed)
     {
-        std::vector<std::string> parts = split(s, '#');
+        if (s.find('L') != s.npos) {
+            indexIsReversed = true;
 
-        auto value_of_first_name = value_of(T::First);
-        auto value_of_last_name = value_of(T::Last);
-
-        if (parts.size() == 1) {
-            for (auto value = value_of_first_name; value <= value_of_last_name; value++) {
-                if (!add_number(numbers, value))
+            auto numberStart = s.find('-');
+            if (numberStart == s.npos)
+            {
+                return add_number(numbers, value_of(T::First));
+            }
+            else
+            {
+                std::vector<std::string> parts = split(s, '-');
+                if (parts.size() == 1) {
                     return false;
+                }
+
+                return add_number(numbers, std::stoi(parts[1]));
             }
         }
         else {
-            if (!is_number(parts[1]))
-                return false;
+            indexIsReversed = false;
 
-            if (!add_number(numbers, std::stoi(parts[1])))
-                return false;
+            std::vector<std::string> parts = split(s, '#');
+
+            auto value_of_first_name = value_of(T::First);
+            auto value_of_last_name = value_of(T::Last);
+
+            if (parts.size() == 1) {
+                for (auto value = value_of_first_name; value <= value_of_last_name; value++) {
+                    if (!add_number(numbers, value))
+                        return false;
+                }
+            }
+            else {
+                if (!is_number(parts[1]))
+                    return false;
+
+                if (!add_number(numbers, std::stoi(parts[1])))
+                    return false;
+            }
         }
 
         return true;
@@ -334,9 +363,9 @@ namespace libcron
 
         bool res = true;
 
-        auto hash = range.find_first_of('#');
-        if (hash != std::string::npos) {
-            return convert_from_string_range_to_number_range(range.substr(0, hash), numbers);
+        auto split = range.find_first_of("#L");
+        if (split != std::string::npos) {
+            return convert_from_string_range_to_number_range(range.substr(0, split), numbers);
         }
 
         if (range == "*" || range == "?")
