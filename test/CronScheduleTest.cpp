@@ -234,4 +234,36 @@ SCENARIO("Calculating relative start times")
                 DT(2024_y / 2 / 13),
                 DT(2025_y / 2 / 11),
         }));
+
+    // Test last day of the month support
+    REQUIRE(test("0 0 0 L * ?", DT(2024_y / 1 / 30, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2024_y / 1 / 31),
+                DT(2024_y / 2 / 29),
+                DT(2024_y / 3 / 31),
+        }));
+
+    // Test last day of the month support
+    REQUIRE(test("0 0 0 L-1 * ?", DT(2024_y / 1 / 30, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2024_y / 1 / 31),
+                DT(2024_y / 2 / 29),
+                DT(2024_y / 3 / 31),
+        }));
+
+    // Test last day of the month support with a leap year
+    REQUIRE(test("0 0 0 L FEB ?", DT(2023_y / 1 / 30, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2023_y / 2 / 28),
+                DT(2024_y / 2 / 29),
+                DT(2025_y / 2 / 28),
+        }));
+
+    // Test last day of the month support
+    REQUIRE(test("0 0 0 L-2 * ?", DT(2024_y / 1 / 28, hours{ 1 }, minutes{ 1 }, seconds{ 1 }),
+        {
+                DT(2024_y / 1 / 30),
+                DT(2024_y / 2 / 28),
+                DT(2024_y / 3 / 30),
+        }));
 }

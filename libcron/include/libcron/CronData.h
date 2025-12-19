@@ -61,8 +61,12 @@ namespace libcron
                 return index_of_day;
             }
 
-            bool is_index_of_day_reversed() const {
-                return index_of_day_is_reversed;
+            bool is_index_of_week_day_reversed() const {
+                return reverse_index_of_week_day;
+            }
+
+            bool is_index_of_month_day_reversed() const {
+                return reverse_index_of_month_day;
             }
 
             template<typename T>
@@ -95,6 +99,9 @@ namespace libcron
 
             template<typename T>
             bool validate_numeric(const std::string& s, std::set<T>& numbers);
+
+            template<typename T>
+            bool validate_numeric_with_reverse(const std::string& s, std::set<T>& numbers, bool& isReversed);
 
             template<typename T>
             bool validate_literal(const std::string& s,
@@ -138,7 +145,8 @@ namespace libcron
             std::set<Months> months{};
             std::set<DayOfWeek> day_of_week{};
             std::set<IndexOfDay> index_of_day{};
-            bool index_of_day_is_reversed = false;
+            bool reverse_index_of_week_day = false;
+            bool reverse_index_of_month_day = false;
             bool valid = false;
 
             static const std::vector<std::string> month_names;
@@ -155,6 +163,33 @@ namespace libcron
         std::vector<std::string> parts = split(s, ',');
 
         return process_parts(parts, numbers);
+    }
+
+    template<typename T>
+    bool CronData::validate_numeric_with_reverse(const std::string& s, std::set<T>& numbers, bool& isReversed)
+    {
+        auto lastIndex = s.find('L');
+        if (lastIndex != s.npos) {
+            isReversed = true;
+
+            // If L is the last character, we default to the last day of the month, which is value 1
+            if (lastIndex == s.length() - 1) {
+                return add_number(numbers, value_of(T::First));
+            }
+            // Otherwise, we expect a -X after the L, which is the offset from the end of the month
+            else if (s[lastIndex + 1] == '-') {
+                return add_number<T>(numbers, std::stoi(s.c_str() + lastIndex + 2));
+            }
+            // Otherwise, it's an invalid format
+            else {
+                return false;
+            }
+
+            isReversed = true;
+        } else {
+            std::vector<std::string> parts = split(s, ',');
+            return process_parts(parts, numbers);
+        }
     }
 
     template<typename T>

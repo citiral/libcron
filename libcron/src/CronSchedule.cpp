@@ -30,8 +30,17 @@ namespace libcron
                 // If all days are allowed (or the field is ignored via '?'), then the 'day of week' takes precedence.
             else if (data.get_day_of_month().size() != CronData::value_of(DayOfMonth::Last))
             {
+                auto day = ymd.day();
+
+                if (data.is_index_of_month_day_reversed())
+                {
+                    // flip the day offset to count from the end of the month
+                    year_month_day_last mdl = ymd.year() / ymd.month() / last;
+                    day = date::day(unsigned(mdl.day()) - unsigned(day) + 1);
+                }
+
                 // Add days until one of the allowed days are found, or stay at the current one.
-                if (data.get_day_of_month().find(static_cast<DayOfMonth>(unsigned(ymd.day()))) ==
+                if (data.get_day_of_month().find(static_cast<DayOfMonth>(unsigned(day))) ==
                     data.get_day_of_month().end())
                 {
                     sys_days s = ymd;
@@ -55,7 +64,7 @@ namespace libcron
                 }
                 else {
                     // Add weeks until the current index is one of the allowed indexes
-                    if (!data.is_index_of_day_reversed())
+                    if (!data.is_index_of_week_day_reversed())
                     {
                         if (data.get_index_of_day().find(static_cast<IndexOfDay>(ymw.weekday_indexed().index())) ==
                             data.get_index_of_day().end())
@@ -70,7 +79,7 @@ namespace libcron
                         sys_days s = ymw;
                         bool ok = false;
 
-                        for each (auto& index in data.get_index_of_day()) {
+                        for (auto& index : data.get_index_of_day()) {
                             year_month_weekday_last ymwl(ymw.year(), ymw.month(), weekday_last(ymw.weekday()));
                             sys_days ymwl_days = ymwl;
                             ymwl_days -= weeks((((uint8_t) index) - 1));

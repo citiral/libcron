@@ -57,10 +57,10 @@ namespace libcron
             valid = validate_numeric<Seconds>(match[1], seconds);
             valid &= validate_numeric<Minutes>(match[2], minutes);
             valid &= validate_numeric<Hours>(match[3], hours);
-            valid &= validate_numeric<DayOfMonth>(match[4], day_of_month);
+            valid &= validate_numeric_with_reverse<DayOfMonth>(match[4], day_of_month, reverse_index_of_month_day);
             valid &= validate_literal<Months>(match[5], months, month_names);
             valid &= validate_literal<DayOfWeek>(match[6], day_of_week, day_names);
-            valid &= validate_index<IndexOfDay>(match[6], index_of_day, index_of_day_is_reversed);
+            valid &= validate_index<IndexOfDay>(match[6], index_of_day, reverse_index_of_week_day);
             valid &= check_dom_vs_dow(match[4], match[6]);
             valid &= validate_date_vs_months();
         }
