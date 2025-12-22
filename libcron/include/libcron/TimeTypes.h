@@ -58,4 +58,10 @@ namespace libcron
         First = 1,
         Last = 5,
     };
+
+    enum class Years : int16_t
+    {
+        First = 1970,
+        Last = 2099
+    };
 }

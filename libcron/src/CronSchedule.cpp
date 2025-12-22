@@ -19,8 +19,17 @@ namespace libcron
             bool date_changed = false;
             year_month_day ymd = date::floor<days>(curr);
 
+
+            // Add years until one of the allowed years are found, or stay at the current one.
+            if (data.get_years().find(static_cast<Years>((int)ymd.year())) == data.get_years().end())
+            {
+                auto next_year = ymd.year() + years{1};
+                sys_days s = next_year / 1 / 1;
+                curr = s;
+                date_changed = true;
+            }
             // Add months until one of the allowed days are found, or stay at the current one.
-            if (data.get_months().find(static_cast<Months>(unsigned(ymd.month()))) == data.get_months().end())
+            else if (data.get_months().find(static_cast<Months>(unsigned(ymd.month()))) == data.get_months().end())
             {
                 auto next_month = ymd + months{1};
                 sys_days s = next_month.year() / next_month.month() / 1;

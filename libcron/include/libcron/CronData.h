@@ -61,6 +61,11 @@ namespace libcron
                 return index_of_day;
             }
 
+            const std::set<Years>& get_years() const
+            {
+                return years;
+            }
+
             bool is_index_of_week_day_reversed() const {
                 return reverse_index_of_week_day;
             }
@@ -70,13 +75,13 @@ namespace libcron
             }
 
             template<typename T>
-            static uint8_t value_of(T t)
+            static uint16_t value_of(T t)
             {
-                return static_cast<uint8_t>(t);
+                return static_cast<uint16_t>(t);
             }
 
             template<typename T>
-            static bool has_any_in_range(const std::set<T>& set, uint8_t low, uint8_t high)
+            static bool has_any_in_range(const std::set<T>& set, uint16_t low, uint16_t high)
             {
                 bool found = false;
 
@@ -145,6 +150,7 @@ namespace libcron
             std::set<Months> months{};
             std::set<DayOfWeek> day_of_week{};
             std::set<IndexOfDay> index_of_day{};
+            std::set<Years> years{};
             bool reverse_index_of_week_day = false;
             bool reverse_index_of_month_day = false;
             bool valid = false;

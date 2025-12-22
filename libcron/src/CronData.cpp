@@ -1,5 +1,6 @@
 #include <date/date.h>
 #include "libcron/CronData.h"
+#include <iostream>
 
 using namespace date;
 
@@ -47,7 +48,7 @@ namespace libcron
         const std::string expression = std::regex_replace(tmp, std::regex("@hourly"), "0 * * * *");
 
         // Second, split on white-space. We expect six parts.
-        std::regex split{ R"#(^\s*(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s*$)#",
+        std::regex split{ R"#(^\s*(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+([^\s]*)\s*([^\s]*?)?\s*$)#",
                           std::regex_constants::ECMAScript };
 
         std::smatch match;
@@ -62,6 +63,8 @@ namespace libcron
             valid &= validate_literal<DayOfWeek>(match[6], day_of_week, day_names);
             valid &= validate_index<IndexOfDay>(match[6], index_of_day, reverse_index_of_week_day);
             valid &= check_dom_vs_dow(match[4], match[6]);
+            valid &= validate_numeric<Years>(match[7].length() > 0 ? match[7] : std::string("*"), years);
+
             valid &= validate_date_vs_months();
         }
     }
