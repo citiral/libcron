@@ -267,3 +267,51 @@ SCENARIO("Calculating relative start times")
                 DT(2024_y / 3 / 30),
         }));
 }
+
+SCENARIO("Calculating year based crons")
+{
+    REQUIRE(test("0 0 0 1 JAN ? 2025", DT(2020_y / 12 / 31, hours{ 23 }, minutes{ 59 }, seconds{ 59 }),
+    {
+        DT(2025_y / 1 / 1)
+    }));
+    REQUIRE(test("0 0 0 1 JAN ? 2025-2027", DT(2020_y / 12 / 31, hours{ 23 }, minutes{ 59 }, seconds{ 59 }),
+    {
+            DT(2025_y / 1 / 1),
+            DT(2026_y / 1 / 1),
+            DT(2027_y / 1 / 1),
+    }));
+
+    REQUIRE(test("0 0 0 1 JAN ? 2025,2027", DT(2020_y / 12 / 31, hours{ 23 }, minutes{ 59 }, seconds{ 59 }),
+    {
+            DT(2025_y / 1 / 1),
+            DT(2027_y / 1 / 1),
+    }));
+}
+
+SCENARIO("Exhausted year-specific cron has no next occurrence")
+{
+    // Years are int16_t, but calculate_from searches with a uint16_t iteration cap.
+    // Once the only allowed year is in the past, that search can wrap the year and
+    // report the original date again instead of reporting that nothing remains.
+    GIVEN("A cron that only matches 1 January 2025")
+    {
+        auto cron = CronData::create("0 0 0 1 JAN ? 2025");
+        REQUIRE(cron.is_valid());
+
+        CronSchedule schedule(cron);
+        auto from = DT(2028_y / 1 / 1);
+
+        WHEN("The search starts after that year has passed")
+        {
+            auto result = schedule.calculate_from(from);
+            auto has_next = std::get<0>(result);
+            auto calculated = CronSchedule::to_calendar_time(std::get<1>(result));
+
+            THEN("It reports that there is no next occurrence")
+            {
+                CAPTURE(has_next, calculated.year, calculated.month, calculated.day);
+                REQUIRE_FALSE(has_next);
+            }
+        }
+    }
+}

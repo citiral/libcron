@@ -20,11 +20,32 @@ namespace libcron
             year_month_day ymd = date::floor<days>(curr);
 
 
-            // Add years until one of the allowed years are found, or stay at the current one.
+            // Move forward to the next allowed year, or stay at the current one.
+            // Years are int16_t, so adding one year at a time past the last allowed
+            // year wraps and can match that exhausted year again.
             if (data.get_years().find(static_cast<Years>((int)ymd.year())) == data.get_years().end())
             {
-                auto next_year = ymd.year() + years{1};
-                sys_days s = next_year / 1 / 1;
+                auto current_year = static_cast<int>(ymd.year());
+                auto found_next_year = false;
+                auto next_allowed_year = 0;
+
+                for (auto year : data.get_years())
+                {
+                    auto value = static_cast<int>(year);
+                    if (value > current_year && (!found_next_year || value < next_allowed_year))
+                    {
+                        next_allowed_year = value;
+                        found_next_year = true;
+                    }
+                }
+
+                if (!found_next_year)
+                {
+                    max_iterations = 0;
+                    break;
+                }
+
+                sys_days s = date::year{next_allowed_year} / 1 / 1;
                 curr = s;
                 date_changed = true;
             }

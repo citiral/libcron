@@ -10,7 +10,7 @@ using namespace date;
 using namespace std::chrono;
 
 template<typename T>
-bool has_value_range(const std::set<T>& set, uint8_t low, uint8_t high)
+bool has_value_range(const std::set<T>& set, uint16_t low, uint16_t high)
 {
     bool found = true;
     for (auto i = low; found && i <= high; ++i)
@@ -247,6 +247,21 @@ SCENARIO("Literal input")
             {
                 auto c = CronData::create("* * * L-32 * ?");
                 REQUIRE(!c.is_valid());
+            }
+        }
+        AND_WHEN("Using year fields")
+        {
+            THEN("Index is valid")
+            {
+                auto c = CronData::create("* * * ? * * 2025");
+                REQUIRE(c.is_valid());
+                REQUIRE(has_value_range(c.get_years(), 2025, 2025));
+            }
+            THEN("Index is valid")
+            {
+                auto c = CronData::create("* * * ? * * 2025,2026,2027");
+                REQUIRE(c.is_valid());
+                REQUIRE(has_value_range(c.get_years(), 2025, 2027));
             }
         }
     }
