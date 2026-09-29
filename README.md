@@ -6,10 +6,16 @@ A C++ scheduling library using cron formatting.
 Libcron offers an easy to use API to add callbacks with corresponding cron-formatted strings:
 
 ```
+#include <libcron/Cron.h>
+#include <libcron/CronData.h>
+#include <chrono>
+#include <thread>
+using namespace std::chrono_literals;
+
 libcron::Cron cron;
 
 cron.add_schedule("Hello from Cron", "* * * * * ?", [=](auto&) {
-	std::cout << "Hello from libcron!" std::endl;
+	std::cout << "Hello from libcron!" << std::endl;
 });
 ```
 
@@ -19,7 +25,7 @@ To trigger the execution of callbacks, one must call `libcron::Cron::tick` at le
 while(true)
 {
 	cron.tick();
-	std::this_thread::sleep_for(500mS);
+	std::this_thread::sleep_for(500ms);
 }
 ```
 
@@ -188,10 +194,15 @@ the '?'-character to ensure that it is not possible to specify a statement which
 |Expression | Meaning
 | --- | --- |
 | * * * * * ? | Every second
+| 0 * * * * ? | Every minute
 | 0 0 12 * * MON-FRI | Every Weekday at noon
 | 0 0 12 1/2 * ?	| Every 2 days, starting on the 1st at noon
 | 0 0 */12 ? * * | Every twelve hours
 | @hourly | Every hour
+
+Note that the expression formatting has a part for seconds and the day of week. 
+For the day of week part, a question mark ? is utilized. This format
+may not be parsed by all online crontab calculators or expression generators.
 
 ## Convenience scheduling
 
@@ -199,12 +210,12 @@ These special time specification tokens which replace the 5 initial time and dat
 
 |Token|Meaning
 | --- | --- |
-| @yearly | Run once a year, ie.  "0 0 1 1 *".
-| @annually | Run once a year, ie.  "0 0 1 1 *".
-| @monthly | Run once a month, ie. "0 0 1 * *".
-| @weekly | Run once a week, ie.  "0 0 * * 0".
-| @daily | Run once a day, ie.   "0 0 * * *".
-| @hourly | Run once an hour, ie. "0 * * * *".
+| @yearly | Run once a year, ie.  "0 0 0 1 1 *".
+| @annually | Run once a year, ie.  "0 0 0 1 1 *"".
+| @monthly | Run once a month, ie. "0 0 0 1 * *".
+| @weekly | Run once a week, ie.  "0 0 0 * * 0".
+| @daily | Run once a day, ie.   "0 0 0 * * ?".
+| @hourly | Run once an hour, ie. "0 0 * * * ?".
 	
 # Randomization
 
